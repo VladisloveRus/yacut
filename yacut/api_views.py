@@ -43,8 +43,11 @@ def add_url():
     if URLMap.query.filter_by(short=url.short).first() is not None:
         raise InvalidAPIUsage(messages['name_exists'].format(short=url.short))
     if (
-        re.fullmatch(r'^([a-zA-Z]|[0-9])*$', url.short) is None
-        or len(url.short) > 16
+        (
+            re.fullmatch(r'^([a-zA-Z]|[0-9])*$', url.short) is None
+        ) or (
+            len(url.short) > 16
+        )
     ):
         raise InvalidAPIUsage(messages['wrong_name'])
     db.session.add(url)
