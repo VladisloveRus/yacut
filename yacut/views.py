@@ -1,9 +1,7 @@
 from random import choice
 from string import ascii_letters, digits
 
-from flask import (Flask, abort, flash, redirect, render_template, request,
-                   url_for)
-from flask_sqlalchemy import SQLAlchemy
+from flask import abort, flash, redirect, render_template, request
 
 from . import app, db
 from .forms import CustomLinkForm

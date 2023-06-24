@@ -15,7 +15,8 @@ messages = {
     'wrong_name': 'Указано недопустимое имя для короткой ссылки',
 }
 
-@app.route('/api/id/<string:short_id>/', methods=['GET'])  
+
+@app.route('/api/id/<string:short_id>/', methods=['GET'])
 def get_url(short_id):
     url_obj = URLMap.query.filter_by(short=short_id).first()
     if url_obj is None:
@@ -41,8 +42,19 @@ def add_url():
         url.short = get_unique_short_id()
     if URLMap.query.filter_by(short=url.short).first() is not None:
         raise InvalidAPIUsage(messages['name_exists'].format(short=url.short))
-    if re.fullmatch(r'^([a-zA-Z]|[0-9])*$', url.short) is None or len(url.short) > 16:
+    if (
+        re.fullmatch(r'^([a-zA-Z]|[0-9])*$', url.short) is None
+        or len(url.short) > 16
+    ):
         raise InvalidAPIUsage(messages['wrong_name'])
     db.session.add(url)
     db.session.commit()
-    return jsonify({'url': url.original, 'short_link': str(request.host_url)+str(url.short)}), 201
+    return (
+        jsonify(
+            {
+                'url': url.original,
+                'short_link': str(request.host_url) + str(url.short),
+            }
+        ),
+        201,
+    )
