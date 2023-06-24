@@ -5,6 +5,8 @@ from wtforms.validators import (URL, DataRequired, Length, Optional, Regexp,
 
 from .models import URLMap
 
+REGEXP = r'^([a-zA-Z]|[0-9])*$'
+
 
 def unique_custom_id_validator(form, field):
     field_data = field.data
@@ -27,7 +29,7 @@ class CustomLinkForm(FlaskForm):
             Optional(),
             Length(1, 16, message='Не более 16 символов'),
             Regexp(
-                r'^([a-zA-Z]|[0-9])*$',
+                REGEXP,
                 message='Только заглавные, прописные латинские буквы или цифры',
             ),
             unique_custom_id_validator,

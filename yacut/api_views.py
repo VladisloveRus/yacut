@@ -1,9 +1,11 @@
 import re
 
 from flask import jsonify, request
+from flask_api import status
 
 from . import app, db
 from .error_handlers import InvalidAPIUsage
+from .forms import REGEXP
 from .models import URLMap
 from .views import get_unique_short_id
 
@@ -20,9 +22,9 @@ messages = {
 def get_url(short_id):
     url_obj = URLMap.query.filter_by(short=short_id).first()
     if url_obj is None:
-        raise InvalidAPIUsage(messages['404'], 404)
+        raise InvalidAPIUsage(messages['404'], status.HTTP_404_NOT_FOUND)
     url = url_obj.original
-    return jsonify({'url': url}), 200
+    return jsonify({'url': url}), status.HTTP_200_OK
 
 
 @app.route('/api/id/', methods=['POST'])
@@ -42,13 +44,7 @@ def add_url():
         url.short = get_unique_short_id()
     if URLMap.query.filter_by(short=url.short).first() is not None:
         raise InvalidAPIUsage(messages['name_exists'].format(short=url.short))
-    if (
-        (
-            re.fullmatch(r'^([a-zA-Z]|[0-9])*$', url.short) is None
-        ) or (
-            len(url.short) > 16
-        )
-    ):
+    if (re.fullmatch(REGEXP, url.short) is None) or (len(url.short) > 16):
         raise InvalidAPIUsage(messages['wrong_name'])
     db.session.add(url)
     db.session.commit()
@@ -59,5 +55,5 @@ def add_url():
                 'short_link': str(request.host_url) + str(url.short),
             }
         ),
-        201,
+        status.HTTP_201_CREATED,
     )
